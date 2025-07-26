@@ -23,10 +23,8 @@ The *Generalized chi-squared distribution* is the distribution of a sum of indep
 \\xi =\\sum_{i}w_{i}y_{i}+x,\\quad y_{i}\\sim \\chi^{2}(\\nu_{i},\\lambda _{i}),\\quad x\\sim N(\\mu,\\sigma^{2}).
 ```
 
-```julia
-GeneralizedChisq(w, ν, λ, μ, σ)
-
-```
+The variables `w`, `ν`, and `λ` are vectors with the weights, degrees of freedom and noncentrality parameters of the Chi-squared distributions, respectively.
+`μ` is the mean and `σ` is the standard deviation of the normal distribution.
 
 External links
 
