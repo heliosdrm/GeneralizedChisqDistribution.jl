@@ -4,11 +4,11 @@ This package implements the [Generalized Chi-squared distribution](https://en.wi
 
 ## Installation
 
-This package is not registered. Add it with `]add https://github.com/heliosdrm/GeneralizedChisqDistribution.jl` in the "pkg mode" of the REPL, or in the "standard REPL":
+Add this package to the current environment with `]add GeneralizedChisqDistribution` in the "pkg mode" of the REPL, or in the "standard REPL":
 
 ```julia
 using Pkg
-Pkg.add("https://github.com/heliosdrm/GeneralizedChisqDistribution.jl")
+Pkg.add("GeneralizedChisqDistribution")
 ```
 
 ## Usage

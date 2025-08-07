@@ -2,17 +2,15 @@
 
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://heliosdrm.github.io/GeneralizedChisqDistribution.jl/dev/)
 [![Build Status](https://github.com/heliosdrm/GeneralizedChisqDistribution.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/heliosdrm/GeneralizedChisqDistribution.jl/actions/workflows/CI.yml?query=branch%3Amain)
-[![Coverage](https://codecov.io/gh/heliosdrm/GeneralizedChisqDistribution.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/heliosdrm/GeneralizedChisqDistribution.jl)
 
 This package implements the [Generalized Chi-squared distribution](https://en.wikipedia.org/wiki/Generalized_chi-squared_distribution) in Julia.
 
 ## Installation
-
-This package is not registered. Add it with `]add https://github.com/heliosdrm/GeneralizedChisqDistribution.jl` in the "pkg mode" of the REPL, or in the "standard REPL":
+Add this package to the current environment with `]add GeneralizedChisqDistribution` in the "pkg mode" of the REPL, or in the "standard REPL":
 
 ```julia
 using Pkg
-Pkg.add("https://github.com/heliosdrm/GeneralizedChisqDistribution.jl")
+Pkg.add("GeneralizedChisqDistribution")
 ```
 
 ## Usage
