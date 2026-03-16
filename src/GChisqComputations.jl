@@ -1,3 +1,9 @@
+"""
+    GChisqComputations
+
+Computations for the Generalized Chi-squared distribution.
+This module is meant to be private, not part of the API.
+"""
 module GChisqComputations
 import ..Distributions
 import ..GeneralizedChisq
@@ -5,7 +11,12 @@ import ..cf, ..cdf, ..insupport
 import ..quadgk, ..mean, ..var
 
 # --- 1. Characteristic function -----------------------------------------------
+"""
+    cf_explicit(d::GeneralizedChisq, t)
 
+Explicitly compute the characteristic function of the Generalized Chi-squared distribution 
+at point `t` using the product of the component characteristic functions.
+"""
 function cf_explicit(d, t)
     arg = im * d.μ * t
     denom = Complex(one(d.μ) * one(t))
@@ -18,7 +29,35 @@ function cf_explicit(d, t)
 end
 
 # --- 2. Davies inversion terms ------------------------------------------------
+"""
+        daviesterms(d::GeneralizedChisq, u, x)
 
+    Terms of the formula (13) in Davies (1980) to calculate
+    the cdf of a generalized chi-squared distribution, as: 
+        
+        F(x) = 1/2 - 1/π *∫sin(θ)/(u*ρ)du
+
+    where `θ` and `ρ` are the outputs of this function.
+
+    Those terms are related to the characteristic function of the distribution as:
+        
+        exp(θ*im)/ρ = exp(-u*x*im)*cf(u) 
+
+    They can be also used to calculate the pdf as:
+        
+        f(x) = 1/π *∫cos(θ)/ρ du
+
+    And its derivative as:
+        
+        f'(x) = 1/π *∫u*sin(θ)/ρ du
+    
+    Reference:
+
+    Robert B. Davies (1980).
+    Algorithm AS 155: The Distribution of a Linear Combination of χ2Random Variables.
+    *Journal of the Royal Statistical Society. Series C (Applied Statistics)*, 29(3), 323–333
+    DOI:10.2307/2346911  
+    """
 function daviesterms(d::GeneralizedChisq{T}, u, x) where {T<:Real}
     θ = -T(u * (x - d.μ))
     ρ = exp(T(u * d.σ)^2 / 2)
@@ -31,8 +70,13 @@ function daviesterms(d::GeneralizedChisq{T}, u, x) where {T<:Real}
     return θ, ρ
 end
 
-# --- 3. Truncation Logic (Ported/Adapted from davies.cpp) ---------------------
+# --- 3. Truncation Logic (Ported/Adapted from R CompQuadForm)------------------
+"""
+    davies_truncation_err(u, d::GeneralizedChisq, tausq)
 
+Estimate the truncation error of the Davies integration at the limit `u`.
+Look alsp: https://github.com/cran/CompQuadForm/blob/master/src/qfc.cpp  
+"""
 function davies_truncation_err(u, d::GeneralizedChisq{T}, tausq) where T
     sum1 = zero(T)
     prod2 = zero(T)
@@ -67,6 +111,12 @@ function davies_truncation_err(u, d::GeneralizedChisq{T}, tausq) where T
     return min(res_err1, res_err2)
 end
 
+"""
+    find_u_limit(d::GeneralizedChisq, acc)
+
+Heuristic to find a suitable upper integration limit `u_lim` such that the 
+truncation error is below `acc`.
+"""
 function find_u_limit(d::GeneralizedChisq{T}, acc) where T
     sigsq = T(d.σ^2)
     # Variance-based heuristic for initial guess
@@ -98,7 +148,12 @@ function find_u_limit(d::GeneralizedChisq{T}, acc) where T
 end
 
 # --- 4. CDF and PDF Core ------------------------------------------------------
+"""
+    daviescdf_pdf(d::GeneralizedChisq, x, u_lim; atol, rtol)
 
+Compute both the CDF and PDF at point `x` in a single integration pass.
+Returns a tuple `(cdf, pdf)`.
+"""
 function daviescdf_pdf(d, x, u_lim; atol=1e-10, rtol=1e-5)
     (int_cdf, int_pdf), _ = quadgk(0, u_lim; atol=atol, rtol=rtol) do u
         θ, ρ = daviesterms(d, u, x)
@@ -108,18 +163,37 @@ function daviescdf_pdf(d, x, u_lim; atol=1e-10, rtol=1e-5)
     return 1 / 2 - int_cdf / π, int_pdf / π
 end
 
+"""
+    daviescdf(d, x; acc=1e-6, atol=1e-8, rtol=1e-5)
+
+Compute the Cumulative Distribution Function at `x` using the Davies method.
+"""
 function daviescdf(d, x; acc=1e-6, atol=1e-8, rtol=1e-5)
     u_lim = find_u_limit(d, acc)
     return daviescdf_pdf(d, x, u_lim; atol=atol, rtol=rtol)[1]
 end
 
+"""
+    daviespdf(d, x; acc=1e-6, atol=1e-8, rtol=1e-5)
+
+Compute the Probability Density Function at `x` using the Davies method.
+"""
 function daviespdf(d, x; acc=1e-6, atol=1e-8, rtol=1e-5)
     u_lim = find_u_limit(d, acc)
     return daviescdf_pdf(d, x, u_lim; atol=atol, rtol=rtol)[2]
 end
 
 # --- 5. Robust Quantile (Hybrid Newton-Bisection) -----------------------------
+"""
+    quantile(d::GeneralizedChisq, p; acc, atol, rtol, n_tol)
 
+Compute the `p`-th quantile using a hybrid Newton-Bisection approach.
+
+# Arguments
+- `acc`: Accuracy for determining the integration limit `u_lim`.
+- `atol/rtol`: Tolerances passed to the `quadgk` integrator.
+- `n_tol`: Convergence tolerance for the root-finding algorithm.
+"""
 function quantile(d::GeneralizedChisq{T}, p;
     acc=1e-5,
     atol=1e-8,
