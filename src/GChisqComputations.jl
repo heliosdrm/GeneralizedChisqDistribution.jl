@@ -3,7 +3,6 @@ import ..Distributions
 import ..GeneralizedChisq
 import ..cf, ..cdf, ..insupport
 import ..quadgk, ..mean, ..var
-import StaticArrays: SVector
 
 # --- 1. Characteristic function -----------------------------------------------
 
@@ -104,7 +103,7 @@ function daviescdf_pdf(d, x, u_lim; atol=1e-10, rtol=1e-5)
     (int_cdf, int_pdf), _ = quadgk(0, u_lim; atol=atol, rtol=rtol) do u
         θ, ρ = daviesterms(d, u, x)
         # Vectorized return for efficiency
-        return SVector(sin(θ) / (u * ρ), cos(θ) / ρ)
+        return [sin(θ) / (u * ρ), cos(θ) / ρ] #
     end
     return 1 / 2 - int_cdf / π, int_pdf / π
 end
